@@ -18,14 +18,14 @@ from math import log10, floor
 
 
 # plt.style.use(['science','ieee'])
-
+# %%
 def round_sig(x, sig=2):
     if x != 0:
         return round(x, sig-int(floor(log10(abs(x))))-1)
     else:
             return x
 
-
+# %%
 def getPolarisationCharacteristics(S=None,Sparam=None):
     ''''
     Return the degree of polarization, 
@@ -73,7 +73,7 @@ def getPolarisationCharacteristics(S=None,Sparam=None):
     
     return D, Davg, e, i, c
 
-
+# %%
 def deg_pol(S):
     ''''
     Return the degree of polarization,  
@@ -91,7 +91,7 @@ def deg_pol(S):
     
     return D
 
-
+# %%
 def getStokesParamFromStokes(stk):
     
     nTot = stk.mesh.nx*stk.mesh.ny*stk.mesh.ne
@@ -181,7 +181,7 @@ def getStokesParamFromStokes(stk):
     
     
     return s0, s1, s2, s3 #, s4, s5, s6, s7
-
+# %%
 def getStokes(w, mutual=0, Fx = 1, Fy = 1):
         
     #if(isinstance(w, SRWLWfr) == False):
@@ -245,7 +245,7 @@ def getStokes(w, mutual=0, Fx = 1, Fy = 1):
     # print(stk.mutual)
     
     return stk, Dx ,Dy
-
+# %%
 def normaliseStoke(S):
     # print("STOKE SHAPE: {}".format(np.shape(S)))
     
@@ -261,7 +261,8 @@ def normaliseStoke(S):
     print(_s)
     
     return _s0, _s1, _s2, _s3
-    
+
+# %%
 def coherenceFromSTKS(S, Dx, Dy, pathCS = None, pathCSL = None):
     
     nTot = S.mesh.nx*S.mesh.ny*S.mesh.ne
@@ -345,7 +346,7 @@ def coherenceFromSTKS(S, Dx, Dy, pathCS = None, pathCSL = None):
     # plt.colorbar()
     # plt.show()
     
-
+# %%
 def plotStokes(s,S,fig1='S0',fig2='S1',fig3='S2',fig4='S3', Dx=50e-6, Dy=50e-6,
                pathS0 = None, pathS1 = None, pathS2 = None, pathS3 = None,
                pathD = None, pathE = None, pathIn = None):
@@ -465,7 +466,7 @@ def plotStokes(s,S,fig1='S0',fig2='S1',fig3='S2',fig4='S3', Dx=50e-6, Dy=50e-6,
 #     s0,s1,s2,s3 = S
     
     
-
+# %%
 def test():
     eMin = 10e6
     Nx = 100
@@ -513,7 +514,7 @@ def test():
     print("Time taken to get degree of coherence from Stokes (s): {}".format(end1 - start1))
     
     print ('------Done------')
-    
+# %%    
 if __name__ == '__main__':
    test()
 

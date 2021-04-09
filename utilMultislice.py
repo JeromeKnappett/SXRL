@@ -5,7 +5,7 @@ Created on Wed Mar 24 10:14:36 2021
 
 @author: jerome
 """
-
+# %%
 def sliceThickness(lam, x, e1 = 0.1, e2 = 0.1):
     ''''
     Return the necessary thickness (z) of each slice for multi-slice
@@ -22,7 +22,8 @@ def sliceThickness(lam, x, e1 = 0.1, e2 = 0.1):
     z = (e2*(x**2))/((e1**2)*lam)
     
     return z
-    
+
+# %%
 def sliceNums(t, lam, x, e1=0.1, e2=0.1):
     ''''
     Return the number of slices (N) necessary for multi-slice
@@ -41,6 +42,7 @@ def sliceNums(t, lam, x, e1=0.1, e2=0.1):
     
     return N
 
+# %%
 def test():
     
     w = 6.7e-9          # incident wavelength
@@ -57,7 +59,8 @@ def test():
     
     print(" ")
     print("Done")
-    
+
+# %%
 if __name__ == '__main__':
     test()
     

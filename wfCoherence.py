@@ -27,6 +27,7 @@ from wpg.srwlib import *
 
 from math import log10, floor
 
+# %%
 def round_sig(x, sig=2):
     if x != 0:
         return round(x, sig-int(floor(log10(abs(x))))-1)
@@ -35,7 +36,8 @@ def round_sig(x, sig=2):
 
 
 # plt.style.use(['science','ieee'])
-    
+
+# %%    
 def Coherence(wfr, Fx = 1/3, Fy = 1/3, pathX = None, pathY = None, pathC = None, pathCL = None, pathI = None):
     
     """
@@ -234,6 +236,8 @@ def Coherence(wfr, Fx = 1/3, Fy = 1/3, pathX = None, pathY = None, pathC = None,
     
     return B ,Dx, Dy
 
+
+# %%
 def coherenceProfiles(wfr, Fx = 1/3, Fy = 1/3):
     """
     Calculate the horizontal and vertical profiles of the spatial coherence 
@@ -351,7 +355,7 @@ def coherenceProfiles(wfr, Fx = 1/3, Fy = 1/3):
     # """ Normalised Degree of Coherence """
     # U = (abs(B.mean(0))/(abs(A.conjugate()*A)))
     
-    
+# %%    
 def plotCoherence(B,Dx,Dy, pathCm = None, pathCmL = None):
     
     print("----Starting plotCoherence Function---")
@@ -437,6 +441,7 @@ def plotCoherence(B,Dx,Dy, pathCm = None, pathCmL = None):
         plt.savefig(pathCmL)
     plt.show()
 
+# %%
 def test():
     eMin = 10e6
     Nx = 150
@@ -474,6 +479,7 @@ def test():
     plotCoherence(B,Dx,Dy)
     coherenceProfiles(wf0,Fx,Fy)
 
+# %%
 def test_multi():
     
     """DEFINING ELECTRON BEAM"""
@@ -622,7 +628,7 @@ def test_multi():
 #         20- Electric Field (sum of fields from all macro-electrons, assuming CSR)
 #         40- Total Intensity, i.e. Flux per Unit Surface Area (s0), Mutual Intensity Cuts and Degree of Coherence vs X & Y;
 
-
+# %%
 if __name__ == '__main__':
     test()
     # test_multi()
