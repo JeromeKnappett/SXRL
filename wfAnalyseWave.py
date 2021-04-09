@@ -10,7 +10,10 @@ from wpg.wavefront import Wavefront
 import wfCoherence as coh
 import time
 import wfStokes
+import numpy as np
+import matplotlib.pyplot as plt
 
+# %%
 def analyseWave(path,S=2,C=1,Cp=1,Fx=1/3,Fy=1/3,
                 pathS0 = None, pathS1 = None, pathS2 = None, pathS3 = None,
                 pathD = None, pathE = None, pathIn = None,
@@ -109,14 +112,54 @@ def analyseWave(path,S=2,C=1,Cp=1,Fx=1/3,Fy=1/3,
     print(" ")    
     print("Done")
     
+# %%
+def poynting(lam,I,pGrad):
     
-def test():
+    
+    k = (2*np.pi)/lam
+    
+    P = (1/k)*I*(pGrad+k)
+    
+    return P
+
+# %%
+def testAnalysis():
     path = 'wavefield_1.pkl'
     
     analyseWave(path, 1, 1, 1, 1/4, 1/4)# 3/8,3/8)
+
+# %%
+def testPoynting():
     
+    """ Loading Pickled Wavefield """
+    path = 'wavefield_1.pkl'
+
+    with open(path, 'rb') as wav:
+        w = pickle.load(wav)
+    
+    wf = Wavefront(srwl_wavefront=w)
+    
+    I = Wavefront.get_intensity(wf)
+    Ph = Wavefront.get_phase(wf)
+    
+    pGrad = np.gradient(Ph)
+    
+    
+    lamb = 6.7e-9 #wavelength of incident radiation
+    
+    P = poynting(lamb,I,pGrad)
+    
+    print("shape of Poynting vector: {}".format(np.shape(P)))
+    print("P: {}".format(P))
+
+    plt.imshow(P)      
+          
+    
+
+# %%
 if __name__ == '__main__':
-   test()
+   # testAnalysis()
+   testPoynting()
 
 
     
