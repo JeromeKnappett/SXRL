@@ -454,12 +454,24 @@ varParam = srwl_bl.srwl_uti_ext_options([
 #                                                              Sx,  Rx,  Sy,  Ry
     ['op_zero_drift_pp', 'f',                [0, 0, 1.0, 0, 0, 0.5, 2.0, 0.5, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'zero_drift'],
     ['op_Mask_Aperture_pp', 'f',             [0, 0, 1.0, 0, 0, 0.5, 2.0, 0.5, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'Mask_Aperture'],
-    ['op_Obstacle_pp', 'f',                  [0, 0, 1.0, 0, 0, 0.1, 5.0, 0.1, 5.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'Obstacle'], # current res at obstacle = 375x375 nm
+    ['op_Obstacle_pp', 'f',                  [0, 0, 1.0, 0, 0, 0.125, 50.0, 0.125, 50.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'Obstacle'], # current res at obstacle = 375x375 nm
     ['op_maskObstacle_pp', 'f',              [0, 0, 1.0, 0, 0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'maskObstacle'],
     ['op_maskSubstrate_pp', 'f',             [0, 0, 1.0, 0, 0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'Substrate'],    
-    ['op_Mask_pp', 'f',                      [0, 0, 1.0, 0, 0, 0.5, 15.0, 0.5, 15.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'Mask'],
-    ['op_Farfield_Propagation_pp', 'f',      [0, 0, 1.0, 1, 0, 2.5, 0.5, 2.5, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'Farfield_Propagation'],
+    ['op_Mask_pp', 'f',                      [0, 0, 1.0, 0, 0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'Mask'],
+    ['op_Farfield_Propagation_pp', 'f',      [0, 0, 1.0, 1, 0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'Farfield_Propagation'],
     ['op_fin_pp', 'f',                       [0, 0, 1.0, 0, 0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'final post-propagation (resize) parameters'],
+
+
+    # ['op_zero_drift_pp', 'f',                [0, 0, 1.0, 0, 0, 0.5, 2.0, 0.5, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'zero_drift'],
+    # ['op_Mask_Aperture_pp', 'f',             [0, 0, 1.0, 0, 0, 0.5, 2.0, 0.5, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'Mask_Aperture'],
+    # ['op_Obstacle_pp', 'f',                  [0, 0, 1.0, 0, 0, 0.1, 5.0, 0.1, 5.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'Obstacle'], # current res at obstacle = 375x375 nm
+    # ['op_maskObstacle_pp', 'f',              [0, 0, 1.0, 0, 0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'maskObstacle'],
+    # ['op_maskSubstrate_pp', 'f',             [0, 0, 1.0, 0, 0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'Substrate'],    
+    # ['op_Mask_pp', 'f',                      [0, 0, 1.0, 0, 0, 0.5, 15.0, 0.5, 15.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'Mask'],
+    # ['op_Farfield_Propagation_pp', 'f',      [0, 0, 1.0, 1, 0, 2.5, 0.5, 2.5, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'Farfield_Propagation'],
+    # ['op_fin_pp', 'f',                       [0, 0, 1.0, 0, 0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'final post-propagation (resize) parameters'],
+
+
 
     #[ 0]: Auto-Resize (1) or not (0) Before propagation
     #[ 1]: Auto-Resize (1) or not (0) After propagation
@@ -538,13 +550,16 @@ def main():
     srwl_bl.SRWLBeamline(_name=v.name, _mag_approx=mag).calc_all(v, op)
     w = v.w_res
     
-    from utilMultislice import sliceNums
+    try:
+        from utilMultislice import sliceNums
+    except ImportError:
+            from SXRL.utilMultislice import sliceNums
     import math
     
     """ Finding number of necessary slices for each mask layer """
     lam = 6.7e-9 # Incident wavelength
-    et1 = 0.1    # Transverse sampling factor (must be < 0.25)
-    et2 = 0.1    # Longitudinal sampling factor (must be < 0.25)
+    et1 = 0.25    # Transverse sampling factor (must be < 0.25)
+    et2 = 0.25    # Longitudinal sampling factor (must be < 0.25)
     x1 = 2.5e-9  # Resolution at photon block layer
     x2 = x1      # Resolution at substrate layer
     x3 = x1      # Resolution at absorber layer
@@ -552,16 +567,18 @@ def main():
     t2 = 40e-9   # Thickness of substrate layer
     t3 = 720e-9  # Thickness of absorber layer
     
+    wf0 = Wavefront(srwl_wavefront=w)
     
-    N1 = sliceNums(t1, lam, x1, et1, et2)
-    N2 = sliceNums(t2, lam, x2, et1, et2)
-    N3 = sliceNums(t3, lam, x3, et1, et2)
+    dx, dy = wf0.pixelsize() # resolution of final wavefront (can be used for multislice calculations if no change from wavefront at mask)
+    print("final pixel size (dx,dy): {}".format((dx,dy)))
+    
+    N1 = sliceNums(t1, lam, dx, et1, et2)
+    N2 = sliceNums(t2, lam, dx, et1, et2)
+    N3 = sliceNums(t3, lam, dx, et1, et2)
     
     print("Number of slices necessary for photon block layer: {}".format(math.ceil(N1)))
     print("Number of slices necessary for substrate layer: {}".format(math.ceil(N2)))
     print("Number of slices necessary for absorber layer: {}".format(math.ceil(N3)))
-    
-    wf0 = Wavefront(srwl_wavefront=w)
     
     phase = wf0.get_phase()
     newphase = np.squeeze(phase)
@@ -573,8 +590,12 @@ def main():
     # plt.show()
     
     import imageio
-    imageio.imwrite('phaseTest.tif', newphase)
-    imageio.imwrite('intensity_maskprop.tif',intensity)
+    P_path = 'phaseTest.tif'
+    I_path = 'intensity_maskProp.tif'
+    imageio.imwrite(P_path, newphase)
+    print("Phase written to {}".format(P_path))
+    imageio.imwrite(I_path,intensity)
+    print("Intensity written to {}".format(I_path))
     
 if __name__ == '__main__':
     main()
