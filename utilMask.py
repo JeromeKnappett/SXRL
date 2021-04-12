@@ -344,15 +344,48 @@ def test():
     
     
     """ Intensity from tif file """
-    I0 = getImageData('/home/jerome/WPG/intensity_atmask.tif')
-    I1 = getImageData('/home/jerome/WPG/intensity_maskprop.tif') #getImageData('/home/jerome/WPG/intensityTot_maskprop.tif')
+    I0 = getImageData('/home/jerome/WPG/intensity_mask.tif')
+    I1 = getImageData('/home/jerome/WPG/intensity_maskExit.tif')
+    I2 = getImageData('/home/jerome/WPG/intensity_maskProp.tif') #getImageData('/home/jerome/WPG/intensityTot_maskprop.tif')    
     
     I0_tot = np.sum(I0)
     I1_tot = np.sum(I1)
+    I2_tot = np.sum(I2)
     
-    Ir = I0_tot/I1_tot
+    s0 = np.shape(I0)
+    s1 = np.shape(I1)
+    s2 = np.shape(I2)
     
-    print("Intensity Ratio: {}".format(Ir))
+    # Is = np.shape(I2)
+    
+    print("Shape of I (at mask): {}".format(s0))
+    print("Shape of I (after mask): {}".format(s1))
+    print("Shape of I (after propagation): {}".format(s2))
+    
+    F0 = s0[0]/s1[0]
+    F1 = s0[0]/s2[0]
+    F2 = s1[0]/s2[0]
+    
+    print("pixel ratio (I0/I1): {}".format(F0))
+    print("pixel ratio (I0/I2): {}".format(F1))
+    print("pixel ratio (I1/I2): {}".format(F2))
+    
+    if F0 != 1.0:
+        print("WARNING! Number of pixels in intensity files does not match! Efficiency values may not be accurate!")
+        
+    if F1 != 1.0:
+        print("WARNING! Number of pixels in intensity files does not match! Efficiency values may not be accurate!")
+        
+    if F2 != 1.0:
+        print("WARNING! Number of pixels in intensity files does not match! Efficiency values may not be accurate!")
+    
+    Ir0 = (F0**2)*(I1_tot/I0_tot)    # ratio of intensity before & after mask
+    Ir1 = (F1**2)*(I2_tot/I0_tot)    # ratio of intensity before & after mask
+    Ir2 = (F2**2)*(I2_tot/I1_tot)    # ratio of intensity before & after mask
+    
+    print("Intensity Ratio I_ex/I_in: {}".format(Ir0))
+    print("Intensity Ratio I_prop/I_in: {}".format(Ir1))
+    print("Intensity Ratio I_prop/I_exit: {}".format(Ir2))
     
     
     plt.imshow(I0)
@@ -361,76 +394,90 @@ def test():
     plt.show()
     
     plt.imshow(I1)
+    plt.title("After mask")
+    plt.colorbar()
+    plt.show()   
+    
+    plt.imshow(I2)
     plt.title("after propagation")
     plt.colorbar()
     plt.show()
     
-    Is = np.shape(I1)
-    
-    print("Shape of I: {}".format(Is))
     
     print(" ")
     print("-----Total Intensity-----")
-    print("Itot: {}".format(I0_tot))
+    print("At mask: {}".format(I0_tot))
+    print("After mask: {}".format(I1_tot))
+    print("After propagation: {}".format(I2_tot))
 
-    """ Define region of interest to inspect separate orders """    
-    ROI = ((int((Is[0]/2)-150),int(600)),
-           (int((Is[0]/2)+150),int(1000)))
+    """ Define region of interest to inspect separate orders """  
+    # region for m=0 
+    ROI_0 = ((int((s2[0]/2)-300),
+              int(1300)),
+           (int((s2[0]/2)+300),
+            int(1900)))
+    # region for m=+1
+    ROI_1 = ((int((s2[0]/2)-300),
+              int(700)),
+           (int((s2[0]/2)+300),
+            int(1300)))
+    # region for m=-1
+    ROI_n1 = ((int((s2[0]/2)-300),
+              int(1900)),
+           (int((s2[0]/2)+300),
+            int(2500)))
     
-    x0,y0 = ROI[0][0], ROI[0][1]
-    x1,y1 = ROI[1][0], ROI[1][1]
+    x0_0,y0_0 = ROI_0[0][0], ROI_0[0][1]
+    x1_0,y1_0 = ROI_0[1][0], ROI_0[1][1]
     
+    x0_1,y0_1 = ROI_1[0][0], ROI_1[0][1]
+    x1_1,y1_1 = ROI_1[1][0], ROI_1[1][1]
     
-    A = I1[y0:y1,x0:x1]
+    x0_n1,y0_n1 = ROI_n1[0][0], ROI_n1[0][1]
+    x1_n1,y1_n1 = ROI_n1[1][0], ROI_n1[1][1]
     
-    plt.imshow(A)
-    plt.title('m=1')
+    A_0 = I2[y0_0:y1_0,x0_0:x1_0]
+    A_1 = I2[y0_1:y1_1,x0_1:x1_1]
+    A_n1 = I2[y0_n1:y1_n1,x0_n1:x1_n1]
+    
+    plt.imshow(A_0)
+    plt.title('m=0')
+    plt.colorbar()
+    plt.show()    
+    
+    plt.imshow(A_1)
+    plt.title('m=+1')
     plt.colorbar()
     plt.show()
     
-    Im_1 = np.sum(A)
-    
-    print("----- Intensity of m=+1-----")
-    print("Im_1: {}".format(Im_1))
-    
-    # # Ri = (int((Is[0]/2)-150),int(600))
-    # # Rf = (int((Is[0]/2)+150),int(900))
-    
-    # Ri = (int(1250),int(750))
-    # Rf = (int(1250),int(750))
-
-    # color = 100#(255,255,0)
-    # thickness = 1000
-
-    # Im = cv2.rectangle(I, 
-    #               Ri, 
-    #               Rf, 
-    #               color, 
-    #               thickness)
-    
-    # cv2.imshow('image', Im)
-    
-    # cv2.line(I,Ri,Rf,(0,250,0),100)
-
-
-    # Convert the numpy array to an Image object.
-    img = Image.fromarray(I1)
-
-    # Draw a rotated rectangle on the image.
-    draw = ImageDraw.Draw(img)
-    rect = get_rect(x=750, y=750, width=500, height=500, angle=0.0)
-    draw.polygon([tuple(p) for p in rect], fill='white')#, outline='white')
-    # Convert the Image data to a numpy array.
-    new_data = np.asarray(img)
-
-    # Display the result using matplotlib.  (`img.show()` could also be used.)
-    plt.imshow(new_data, cmap=plt.cm.gray)
+    plt.imshow(A_n1)
+    plt.title('m=-1')
+    plt.colorbar()
     plt.show()
-
-
-    E1 = Im_1/I1_tot
     
-    print("Efficiency of m=1 order: {}".format(E1))
+    Im_0 = np.sum(A_0)
+    Im_1 = np.sum(A_1)
+    Im_n1 = np.sum(A_n1)
+    
+    print(" ")
+    print("----- Intensity of m = 0-----")
+    print("Im_1: {}".format(Im_0))
+    print(" ")
+    print("----- Intensity of m = +1-----")
+    print("Im_1: {}".format(Im_1))
+    print(" ")
+    print("----- Intensity of m = -1-----")
+    print("Im_1: {}".format(Im_n1))
+    
+    """ Get Efficiency of each order """   # Not sure if should be dividing by total intensity at mask or after mask
+    E0 = (F0**2)*(Im_0/I0_tot)
+    E1 = (F1**2)*(Im_1/I0_tot)
+    En1 = (F1**2)*(Im_n1/I0_tot)
+    
+    print(" ")
+    print("Efficiency of m=0 order: {}".format(E0))
+    print("Efficiency of m=+1 order: {}".format(E1))
+    print("Efficiency of m=-1 order: {}".format(En1))
     
     
 if __name__ == '__main__':
