@@ -49,8 +49,8 @@ def set_optics(v=None):
             'zero_drift', 
             'Mask_Aperture',   # Aperture to block wavefield at mask edges (Should be size of mask)
             'Obstacle',      # Generic obstacle (ideal photon block)
-            # 'maskObstacle',  # Photon block layer of mask
-            # 'maskSubstrate', # Substrate layer of mask
+            'maskObstacle',  # Photon block layer of mask
+            'maskSubstrate', # Substrate layer of mask
             'Mask',            # Absorber layer of mask
             'Farfield_Propagation'
              ]
@@ -360,7 +360,7 @@ varParam = srwl_bl.srwl_uti_ext_options([
     ['op_Obstacle_y', 'f', -10e-6, 'verticalOffset'],    #-10e-6
     
     # maskObstacle: Photon Block Layer [Tantillum?]
-    ['op_maskObstacle_file_path', 's', '/home/jerome/Documents/MASTERS/masks/vert_block.tif', 'imageFile'], # MAKE SURE FILE PATH IS CORRECT
+    ['op_maskObstacle_file_path', 's', '/home/jerome/Documents/MASTERS/masks/mask_block.tif', 'imageFile'], # MAKE SURE FILE PATH IS CORRECT
     ['op_maskObstacle_outputImageFormat', 's', 'tif', 'outputImageFormat'],
     ['op_maskObstacle_position', 'f', 3.0, 'position'],                        # ABSOLUTE POSITION ALONG BEAMLINE
     ['op_maskObstacle_resolution', 'f', 2.5e-08, 'resolution'],                # CHECK PIXEL SIZE OF TIFF VS MASK SIZE TO GET RESOLUTION
@@ -374,9 +374,9 @@ varParam = srwl_bl.srwl_uti_ext_options([
     ['op_maskObstacle_cropArea', 'i', 0, 'cropArea'],
     ['op_maskObstacle_extTransm', 'i', 0, 'transmissionImage'], 
     ['op_maskObstacle_areaXStart', 'i', 0, 'areaXStart'],
-    ['op_maskObstacle_areaXEnd', 'i', 17000, 'areaXEnd'],                       # NUMBER OF PIXELS IN TIFF FILE (HORIZONTAL)
+    ['op_maskObstacle_areaXEnd', 'i', 1408, 'areaXEnd'],                       # NUMBER OF PIXELS IN TIFF FILE (HORIZONTAL)
     ['op_maskObstacle_areaYStart', 'i', 0, 'areaYStart'],
-    ['op_maskObstacle_areaYEnd', 'i', 17000, 'areaYEnd'],                       # NUMBER OF PIXELS IN TIFF FILE (VERTICAL)
+    ['op_maskObstacle_areaYEnd', 'i', 1408, 'areaYEnd'],                       # NUMBER OF PIXELS IN TIFF FILE (VERTICAL)
     ['op_maskObstacle_rotateReshape', 'i', 0, 'rotateReshape'],
     ['op_maskObstacle_backgroundColor', 'i', 0, 'backgroundColor'],
     ['op_maskObstacle_tileImage', 'i', 0, 'tileImage'],
@@ -384,14 +384,14 @@ varParam = srwl_bl.srwl_uti_ext_options([
     ['op_maskObstacle_tileColumns', 'i', 1, 'tileColumns'],
     ['op_maskObstacle_shiftX', 'i', 0, 'shiftX'],
     ['op_maskObstacle_shiftY', 'i', 0, 'shiftY'],
-    ['op_maskObstacle_invert', 'i', 0, 'invert'],                              # INVERT BLACK/WHITE (BLACK = EMPTY SPACE, WHITE = SOLID SURFACE)
+    ['op_maskObstacle_invert', 'i', 1, 'invert'],                              # INVERT BLACK/WHITE (BLACK = EMPTY SPACE, WHITE = SOLID SURFACE)
     
     
     #maskSubstrate: Si02
-    ['op_maskSubstrate_file_path', 's', '/home/jerome/Documents/MASTERS/masks/vert_substrate.tif', 'imageFile'], # MAKE SURE FILE PATH IS CORRECT
+    ['op_maskSubstrate_file_path', 's', '/home/jerome/Documents/MASTERS/masks/mask_substrate.tif', 'imageFile'], # MAKE SURE FILE PATH IS CORRECT
     ['op_maskSubstrate_outputImageFormat', 's', 'tif', 'outputImageFormat'],
-    ['op_maskSubstrate_position', 'f', 37.0, 'position'],                      # ABSOLUTE POSITION ALONG BEAMLINE
-    ['op_maskSubstrate_resolution', 'f', 4e-09, 'resolution'],               # CHECK PIXEL SIZE OF TIFF VS MASK SIZE TO GET RESOLUTION
+    ['op_maskSubstrate_position', 'f', 3.0, 'position'],                       # ABSOLUTE POSITION ALONG BEAMLINE
+    ['op_maskSubstrate_resolution', 'f', 2.5e-08, 'resolution'],               # CHECK PIXEL SIZE OF TIFF VS MASK SIZE TO GET RESOLUTION
     ['op_maskSubstrate_thick', 'f', 40e-9, 'thickness'],                       # SUBSTRATE LAYER THICKNESS
     ['op_maskSubstrate_delta', 'f', 0.0940100942, 'refractiveIndex'],          # REFRACTIVE INDEX OF SUBSTRATE MATERIAL
     ['op_maskSubstrate_atten_len', 'f', 0.100688e-06, 'attenuationLength'],    # ATTENUATION LENGTH
@@ -402,9 +402,9 @@ varParam = srwl_bl.srwl_uti_ext_options([
     ['op_maskSubstrate_cropArea', 'i', 0, 'cropArea'],
     ['op_maskSubstrate_extTransm', 'i', 0, 'transmissionImage'], 
     ['op_maskSubstrate_areaXStart', 'i', 0, 'areaXStart'],
-    ['op_maskSubstrate_areaXEnd', 'i', 17000, 'areaXEnd'],                      # NUMBER OF PIXELS IN TIFF FILE (HORIZONTAL)
+    ['op_maskSubstrate_areaXEnd', 'i', 1408, 'areaXEnd'],                      # NUMBER OF PIXELS IN TIFF FILE (HORIZONTAL)
     ['op_maskSubstrate_areaYStart', 'i', 0, 'areaYStart'],
-    ['op_maskSubstrate_areaYEnd', 'i', 17000, 'areaYEnd'],                      # NUMBER OF PIXELS IN TIFF FILE (VERTICAL)
+    ['op_maskSubstrate_areaYEnd', 'i', 1408, 'areaYEnd'],                      # NUMBER OF PIXELS IN TIFF FILE (VERTICAL)
     ['op_maskSubstrate_rotateReshape', 'i', 0, 'rotateReshape'],
     ['op_maskSubstrate_backgroundColor', 'i', 0, 'backgroundColor'],
     ['op_maskSubstrate_tileImage', 'i', 0, 'tileImage'],
@@ -412,7 +412,7 @@ varParam = srwl_bl.srwl_uti_ext_options([
     ['op_maskSubstrate_tileColumns', 'i', 1, 'tileColumns'],
     ['op_maskSubstrate_shiftX', 'i', 0, 'shiftX'],
     ['op_maskSubstrate_shiftY', 'i', 0, 'shiftY'],
-    ['op_maskSubstrate_invert', 'i', 0, 'invert'],                             # INVERT BLACK/WHITE (BLACK = EMPTY SPACE, WHITE = SOLID SURFACE)
+    ['op_maskSubstrate_invert', 'i', 1, 'invert'],                             # INVERT BLACK/WHITE (BLACK = EMPTY SPACE, WHITE = SOLID SURFACE)
 
 
      # Mask: sample [values for Si3N4]
@@ -589,9 +589,17 @@ def main():
     # plt.imshow(intensity)
     # plt.show()
     
+    path = '/home/jerome/Documents/MASTERS/testWave.pkl'
+    
+    import pickle
+    with open(path, "wb") as g:
+        pickle.dump(w, g)
+    print("Wavefield written to: {}".format(path))
+    
+    
     import imageio
     P_path = 'phaseTest.tif'
-    I_path = 'intensity_maskProp.tif'
+    I_path = 'intensity_propMask.tif'
     imageio.imwrite(P_path, newphase)
     print("Phase written to {}".format(P_path))
     imageio.imwrite(I_path,intensity)
