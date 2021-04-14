@@ -344,9 +344,9 @@ def test():
     
     
     """ Intensity from tif file """
-    I0 = getImageData('/home/jerome/WPG/intensity_mask.tif')
-    I1 = getImageData('/home/jerome/WPG/intensity_maskExit.tif')
-    I2 = getImageData('/home/jerome/WPG/intensity_maskProp.tif') #getImageData('/home/jerome/WPG/intensityTot_maskprop.tif')    
+    I0 = getImageData('/home/jerome/WPG/intensity_atMask.tif')
+    I1 = getImageData('/home/jerome/WPG/intensity_exitMask.tif')
+    I2 = getImageData('/home/jerome/WPG/intensity_propMask.tif') #getImageData('/home/jerome/WPG/intensityTot_maskprop.tif')    
     
     I0_tot = np.sum(I0)
     I1_tot = np.sum(I1)
