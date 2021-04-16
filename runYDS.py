@@ -471,36 +471,38 @@ def main():
         print(" ")
         print("""-----Writing Wavefield to pickle file----""")
                 
-        path = "/data/group/vanriessenlab/project/xrnl-srw-wpg-docker/data/maskTest/wavefield_ap50d15.pkl"  # Save path for wavefield pickle
-        pathS0 = "/data/group/vanriessenlab/project/xrnl-srw-wpg-docker/data/maskTest/S0.png"               # Save path for Stokes parameter S0 plot
-        pathS1 = "/data/group/vanriessenlab/project/xrnl-srw-wpg-docker/data/maskTest/S1.png"               # Save path for Stokes parameter S1 plot
-        pathS2 = "/data/group/vanriessenlab/project/xrnl-srw-wpg-docker/data/maskTest/S2.png"               # Save path for Stokes parameter S2 plot
-        pathS3 = "/data/group/vanriessenlab/project/xrnl-srw-wpg-docker/data/maskTest/S3.png"               # Save path for Stokes parameter S3 plot
-        pathD = "/data/group/vanriessenlab/project/xrnl-srw-wpg-docker/data/maskTest/D.png"                 # Save path for Degree of Polarisation (D) plot
-        pathE = "/data/group/vanriessenlab/project/xrnl-srw-wpg-docker/data/maskTest/E.png"                 # Save path for Ellipticity (E) plot
-        pathIn = "/data/group/vanriessenlab/project/xrnl-srw-wpg-docker/data/maskTest/In.png"               # Save path for Inclination (In) plot
-        pathCS = "/data/group/vanriessenlab/project/xrnl-srw-wpg-docker/data/maskTest/CS.png"               # Save path for Coherence plot from wfStokes()
-        pathCSL = "/data/group/vanriessenlab/project/xrnl-srw-wpg-docker/data/maskTest/CSL.png"             # Save path for Coherence profiles from wfStokes())
-        pathX = "/data/group/vanriessenlab/project/xrnl-srw-wpg-docker/data/maskTest/X.png"                 # Save path for  plot
-        pathY = "/data/group/vanriessenlab/project/xrnl-srw-wpg-docker/data/maskTest/Y.png"                 # Save path for Degree of Polarisation (D) plot
-        pathC = "/data/group/vanriessenlab/project/xrnl-srw-wpg-docker/data/maskTest/C.png"                 # Save path for Degree of Polarisation (D) plot
-        pathCL = "/data/group/vanriessenlab/project/xrnl-srw-wpg-docker/data/maskTest/CL.png"               # Save path for Degree of Polarisation (D) plot
-        pathI = "/data/group/vanriessenlab/project/xrnl-srw-wpg-docker/data/maskTest/I.png"                 # Save path for Degree of Polarisation (D) plot
-        pathCm = "/data/group/vanriessenlab/project/xrnl-srw-wpg-docker/data/maskTest/Cm.png"               # Save path for Degree of Polarisation (D) plot
-        pathCmL = "/data/group/vanriessenlab/project/xrnl-srw-wpg-docker/data/maskTest/CmL.png"             # Save path for Degree of Polarisation (D) plot
         
-        with open(path, "wb") as g:
+        path = "/home/jerome/WPG/"#"/data/group/vanriessenlab/project/xrnl-srw-wpg-docker/data/maskTest/"
+        waveName = path + "wavefield_TESTY.pkl"  # Save path for wavefield pickle
+        pathS0 = path + "S0.png"               # Save path for Stokes parameter S0 plot
+        pathS1 = path + "S1.png"               # Save path for Stokes parameter S1 plot
+        pathS2 = path + "S2.png"               # Save path for Stokes parameter S2 plot
+        pathS3 = path + "S3.png"               # Save path for Stokes parameter S3 plot
+        pathD = path + "D.png"                 # Save path for Degree of Polarisation (D) plot
+        pathE = path + "E.png"                 # Save path for Ellipticity (E) plot
+        pathIn = path + "In.png"               # Save path for Inclination (In) plot
+        pathCS = path + "CS.png"               # Save path for Coherence plot from wfStokes()
+        pathCSL = path + "CSL.png"             # Save path for Coherence profiles from wfStokes())
+        pathX = path + "X.png"                 # Save path for  plot
+        pathY = path + "Y.png"                 # Save path for Degree of Polarisation (D) plot
+        pathC = path + "C.png"                 # Save path for Degree of Polarisation (D) plot
+        pathCL = path + "CL.png"               # Save path for Degree of Polarisation (D) plot
+        pathI = path + "I.png"                 # Save path for Degree of Polarisation (D) plot
+        pathCm = path + "Cm.png"               # Save path for Degree of Polarisation (D) plot
+        pathCmL = path + "CmL.png"             # Save path for Degree of Polarisation (D) plot
+        
+        with open(waveName, "wb") as g:
             pickle.dump(wf0, g)
-        print("Wavefield written to: {}".format(path))
+        print("Wavefield written to: {}".format(waveName))
         
         print(" ")
         print("""-----Analysing Wavefield-----""")
         
-        aw.analyseWave(path,2,1,1,Fx,Fy, 
-                       pathS0, pathS1, pathS2, pathS3,
-                       pathD, pathE, pathIn, pathCS, 
-                       pathCSL, pathX, pathY, pathC,
-                       pathCL, pathI, pathCm, pathCmL)
+        aw.analyseWave(waveName,2,1,1,Fx,Fy)#, 
+                       # pathS0, pathS1, pathS2, pathS3,
+                       # pathD, pathE, pathIn, pathCS, 
+                       # pathCSL, pathX, pathY, pathC,
+                       # pathCL, pathI, pathCm, pathCmL)
 
     ''' Add this block and edit as required:
             ***** start block A  *****'''
