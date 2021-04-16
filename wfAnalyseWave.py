@@ -14,7 +14,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # %%
-def analyseWave(path,S=2,C=1,Cp=1,Fx=1/3,Fy=1/3,
+def analyseWave(path,S=1,C=1,Cp=1,Fx=1/3,Fy=1/3,
                 pathS0 = None, pathS1 = None, pathS2 = None, pathS3 = None,
                 pathD = None, pathE = None, pathIn = None,
                 pathCS = None, pathCSL = None,
@@ -69,16 +69,20 @@ def analyseWave(path,S=2,C=1,Cp=1,Fx=1/3,Fy=1/3,
         _s = wfStokes.normaliseStoke(s)
         end1 = time.time()
         print('Time taken to get Stokes parameters (s): {}'.format(end1 - start1))
-            
+        
+        print("(Dx,Dy):{}".format((Dx,Dy)))
+        print("S (shape): {}".format(np.shape(S)))
+        
         print(" ")
         print("-----Plotting Stokes parameters-----")
-        wfStokes.plotStokes(s,S,Dx,Dy,
+        wfStokes.plotStokes(s,S,'S0','S1','S2','S3',
+                            Dx,Dy,
                             pathS0, pathS1, pathS2, pathS3,
                             pathD, pathE, pathIn)
-        
         # print(" ")
         # print("-----Plotting normalised Stokes parameters-----")
         # wfStokes.plotStokes(_s,S,'_s0','_s1','_s2','_s3')
+
         
         print(" ")
         print("-----Getting degree of coherence from Stokes-----")
@@ -112,6 +116,20 @@ def analyseWave(path,S=2,C=1,Cp=1,Fx=1/3,Fy=1/3,
     print(" ")    
     print("Done")
     
+
+# %%
+def getPhaseGradient(wf,polarization='horizontal', axis=0):
+    ''' return phase gradient along direction specified by axis for wavefront
+
+    * ignores slices
+    '''
+    
+    phase = np.squeeze(wf.get_phase(polarization=polarization))
+    phaseGradient = np.gradient(phase,axis=axis)
+            
+    return phaseGradient
+    
+    
 # %%
 def poynting(lam,I,pGrad):
     
@@ -121,18 +139,19 @@ def poynting(lam,I,pGrad):
     P = (1/k)*I*(pGrad+k)
     
     return P
+    
 
 # %%
 def testAnalysis():
     path = 'wavefield_1.pkl'
     
-    analyseWave(path, 1, 1, 1, 1/4, 1/4)# 3/8,3/8)
+    analyseWave(path, 0, 1, 1,2/5, 2/5)# 3/8,3/8)
 
 # %%
 def testPoynting():
     
     """ Loading Pickled Wavefield """
-    path = 'wavefield_1.pkl'
+    path = '/home/jerome/Documents/MASTERS/testWave.pkl'
 
     with open(path, 'rb') as wav:
         w = pickle.load(wav)
@@ -140,26 +159,74 @@ def testPoynting():
     wf = Wavefront(srwl_wavefront=w)
     
     I = Wavefront.get_intensity(wf)
-    Ph = Wavefront.get_phase(wf)
+    pGrad = getPhaseGradient(wf,'total',0)
+    # Ph = Wavefront.get_phase(wf)
     
-    pGrad = np.gradient(Ph)
+    plt.imshow(I)
+    plt.title("Intensity")
+    plt.show()
+    
+    plt.imshow(pGrad)
+    plt.title("Phase Gradient")
+    plt.show()
+    
+    dX, dY = Wavefront.pixelsize(wf)
+    
+    # print("shape of Ph: {}".format(np.shape(Ph)))
+    print("(dX,dY): {}".format((dX,dY)))
+    
+    
+    # pGradX = np.gradient(Ph[1])#,varargs = (dX,dY),axis = (0,1))
     
     
     lamb = 6.7e-9 #wavelength of incident radiation
     
-    P = poynting(lamb,I,pGrad)
+    Px = poynting(lamb,np.squeeze(I),pGrad)
     
-    print("shape of Poynting vector: {}".format(np.shape(P)))
-    print("P: {}".format(P))
+    print("Shape of Intensity: {}".format(np.shape(I)))
+    print("Shape of pGrad: {}".format(np.shape(pGrad)))
+    print("shape of Poynting vector: {}".format(np.shape(Px)))
+    # print("P: {}".format(Px))
 
-    plt.imshow(P)      
-          
+    plt.imshow(Px)
+    plt.title("poynting vector")      
+    plt.show()
+    
+    poyntY = Px[:,int(np.shape(Px)[0]/2)]
+    pGradY = pGrad[:,int(np.shape(pGrad)[0]/2)]
+    
+    plt.plot(pGradY)
+    plt.title('Phase Gradient (Vertical cut)')
+    plt.show()
+    
+    plt.plot(poyntY)
+    plt.title('Poynting Vector (Vertical cut)')
+    plt.show()
+    
+    m1 = (abs(pGrad) > 0.04) & (abs(pGrad) < 0.08)
+    
+    #plt.imshow(gradient[mask])
+    print("shape of m1: {}".format(np.shape(m1)))
+    print("shape of pGrad: {}".format(np.shape(pGrad)))
+    print("shape of pGrad[m1]: {}".format(np.shape(pGrad[m1])))
+    ## plt.imshow(pGrad[m1])
+    # print("pGrad[m1]: {}".format(pGrad[m1]))
+    # print("m1: {}".format(m1))
+    # print("max pGrad: {}".format(np.max(pGrad)))
+    
+    m1 = m1 != True # invert mask
+    pGrad[m1]=0
+    plt.imshow(pGrad)
+    plt.title("m=1 phase gradient")
+    plt.show()
+
     
 
 # %%
 if __name__ == '__main__':
-   # testAnalysis()
-   testPoynting()
+    testAnalysis()
+    # testPoynting()
+    # testComplex()
 
 
     
