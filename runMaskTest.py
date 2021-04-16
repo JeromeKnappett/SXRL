@@ -558,8 +558,8 @@ def main():
     
     """ Finding number of necessary slices for each mask layer """
     lam = 6.7e-9 # Incident wavelength
-    et1 = 0.25    # Transverse sampling factor (must be < 0.25)
-    et2 = 0.25    # Longitudinal sampling factor (must be < 0.25)
+    et1 = 0.1    # Transverse sampling factor (must be < 0.25)
+    et2 = 0.1    # Longitudinal sampling factor (must be < 0.25)
     x1 = 2.5e-9  # Resolution at photon block layer
     x2 = x1      # Resolution at substrate layer
     x3 = x1      # Resolution at absorber layer
@@ -589,21 +589,22 @@ def main():
     # plt.imshow(intensity)
     # plt.show()
     
-    path = '/home/jerome/Documents/MASTERS/testWave.pkl'
+    path = '/data/maskTest/'                    # path for writing files
+    waveName = 'testWave.pkl'                   # name of wavefield pickle file
+    phaseName = 'phaseTest.tif'                 # name of phase tif file
+    intensityName = 'intensity_propMask.tif'    # name of intensity tif file
     
     import pickle
-    with open(path, "wb") as g:
+    with open(path+waveName, "wb") as g:
         pickle.dump(w, g)
-    print("Wavefield written to: {}".format(path))
+    print("Wavefield written to: {}".format(path+waveName))
     
     
     import imageio
-    P_path = 'phaseTest.tif'
-    I_path = 'intensity_propMask.tif'
-    imageio.imwrite(P_path, newphase)
-    print("Phase written to {}".format(P_path))
-    imageio.imwrite(I_path,intensity)
-    print("Intensity written to {}".format(I_path))
+    imageio.imwrite(path+phaseName, newphase)
+    print("Phase written to {}".format(path+phaseName))
+    imageio.imwrite(path+intensityName,intensity)
+    print("Intensity written to {}".format(path+intensityName))
     
 if __name__ == '__main__':
     main()
