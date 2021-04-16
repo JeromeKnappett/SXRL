@@ -9,7 +9,7 @@ from wpg.generators import build_gauss_wavefront
 from wpg.srwlib import SRWLStokes, SRWLWfr
 import numpy as np
 import matplotlib.pyplot as plt
-import Stokes
+import wfStokes
 import scipy.ndimage
 
 from wpg.wavefront import Wavefront
@@ -21,13 +21,11 @@ except ImportError:
 
 import time
 import math
-import Stokes
 
 from wpg.srwlib import *
 
 from math import log10, floor
 
-# %%
 def round_sig(x, sig=2):
     if x != 0:
         return round(x, sig-int(floor(log10(abs(x))))-1)
@@ -37,29 +35,38 @@ def round_sig(x, sig=2):
 
 # plt.style.use(['science','ieee'])
 
-# %%    
+# %%
 def Coherence(wfr, Fx = 1/3, Fy = 1/3, pathX = None, pathY = None, pathC = None, pathCL = None, pathI = None):
-    
     """
     Calculate the longitudinal correlation of a single slice of a wavefront
     of shape [nx, ny] 
     
-    :param cfr:  wavefield
-    :returns B: mutual coherence function
+    params:
+    cfr: wavefield
+    Fx: Fraction of wavefield to sample in Horizontal
+    Fy: Fraction of wavefield to sample in Vertical
+    path... : Path names to save plots
+    
+    returns: 
+    B: mutual coherence function
+    Dx: pixel dimension of wavefield (horizontal)
+    Dy: pixel dimension of wavefield (vertical)
     """
+    
     print("----Starting Coherence Function---")
     
     Sx = int(Fx*wfr.params.Mesh.nx)
     Sy = int(Fy*wfr.params.Mesh.ny)
     print("Sampled area (pixels): {}".format([Sx,Sy]))
         
-    if Sx > 75 or Sy > 75:
+    if Sx > 120 or Sy > 120:
         print("Error: Sampled area of wavefront is too large. Change Fx/Fy to a smaller value")
         import sys
         sys.exit()
     
     start1 = time.time()
-    cfr = wfr.toComplex()
+    cfr = getComplex(wfr)
+    print("Shape of Complex Wavefield: {}".format(np.shape(cfr)))
     end1 = time.time()
     print('Time taken to convert to complex wavefield (s): {}'.format(end1 - start1))
     
@@ -121,20 +128,20 @@ def Coherence(wfr, Fx = 1/3, Fy = 1/3, pathX = None, pathY = None, pathC = None,
     print("Shape of By: {}".format(np.shape(By)))
     
     C = abs(B.mean(0))
-    Cx = abs(Bx.mean(0))
-    Cy = abs(By.mean(0))
+    # Cx = abs(Bx.mean(0))
+    # Cy = abs(By.mean(0))
     
     print("Shape of C: {}".format(np.shape(C)))
-    print("Shape of Cx: {}".format(np.shape(Cx)))
-    print("Shape of Cy: {}".format(np.shape(Cy)))
+    # print("Shape of Cx: {}".format(np.shape(Cx)))
+    # print("Shape of Cy: {}".format(np.shape(Cy)))
     
     
     # if wfr is Wavefront():
     Dx = Fx*wfr.params.Mesh.xMax - Fx*wfr.params.Mesh.xMin
     Dy = Fy*wfr.params.Mesh.yMax - Fy*wfr.params.Mesh.yMin
-    # else:
-    #     Dx = Fx*wfr.mesh.xFin - Fx*wfr.mesh.xStart
-    #     Dy = Fy*wfr.mesh.yfin - Fy*wfr.mesh.yStart
+    # # else:
+    # #     Dx = Fx*wfr.mesh.xFin - Fx*wfr.mesh.xStart
+    # #     Dy = Fy*wfr.mesh.yfin - Fy*wfr.mesh.yStart
     
     
     """ Creating array of custom tick markers for plotting """
@@ -169,7 +176,7 @@ def Coherence(wfr, Fx = 1/3, Fy = 1/3, pathX = None, pathY = None, pathC = None,
     plt.show()   
     
     """ Normalised Degree of Coherence """
-    U = (abs(C)/(abs(A.conjugate()*A)))
+    U = 1-(abs((C)/(A.conjugate()*A)))
     
     
     """ Taking line profiles through U """
@@ -178,7 +185,8 @@ def Coherence(wfr, Fx = 1/3, Fy = 1/3, pathX = None, pathY = None, pathC = None,
     
     # print(x0,x1)
     # print(y0,y1)
-        
+    
+    
     print("Sampled area dimensions (m): {}".format([Dx,Dy]))
     
     pX = Dx/lX
@@ -186,7 +194,7 @@ def Coherence(wfr, Fx = 1/3, Fy = 1/3, pathX = None, pathY = None, pathC = None,
     
     print("Pixel size (m): {}".format([pX,pY]))
     print("Shape of U (pixels): {}".format(np.shape(U)))
-
+    
     
     """Plotting"""
     plt.imshow(U ,vmin=0,vmax=1)
@@ -229,13 +237,13 @@ def Coherence(wfr, Fx = 1/3, Fy = 1/3, pathX = None, pathY = None, pathC = None,
     plt.yticks(np.arange(0,lY+1,lY/4),tickAy)
     plt.xlabel("Horizontal Position [\u03bcm]")#"(\u03bcm)")
     plt.ylabel("Vertical Position [\u03bcm]")#"(\u03bcm)")
+    plt.colorbar()
     if pathI != None:
         print("Saving intensity figure to path: {}".format(pathI))
         plt.savefig(pathI)
     plt.show()
     
     return B ,Dx, Dy
-
 
 # %%
 def coherenceProfiles(wfr, Fx = 1/3, Fy = 1/3):
@@ -253,13 +261,13 @@ def coherenceProfiles(wfr, Fx = 1/3, Fy = 1/3):
     Sy = int(Fy*wfr.params.Mesh.ny)
     print("Sampled area (pixels): {}".format([Sx,Sy]))
         
-    if Sx > 80 or Sy > 80:
+    if Sx > 120 or Sy > 120:
         print("Error: Sampled area of wavefront is too large. Change Fx/Fy to a smaller value")
         import sys
         sys.exit()
     
     start1 = time.time()
-    cfr = wfr.toComplex()
+    cfr = getComplex(wfr)
     end1 = time.time()
     print('Time taken to convert to complex wavefield (s): {}'.format(end1 - start1))
     
@@ -355,7 +363,7 @@ def coherenceProfiles(wfr, Fx = 1/3, Fy = 1/3):
     # """ Normalised Degree of Coherence """
     # U = (abs(B.mean(0))/(abs(A.conjugate()*A)))
     
-# %%    
+# %%
 def plotCoherence(B,Dx,Dy, pathCm = None, pathCmL = None):
     
     print("----Starting plotCoherence Function---")
@@ -440,6 +448,34 @@ def plotCoherence(B,Dx,Dy, pathCm = None, pathCmL = None):
         print("Saving figure to path: {}".format(pathCmL))
         plt.savefig(pathCmL)
     plt.show()
+
+# %%
+def getComplex(w):
+    """ 
+    Give the complex representation of a wavefield
+    w: scalar wavefield
+    returns:
+        cwf: complex wavefield
+    """
+    re = w.get_real_part()      # get real part of wavefield
+    im = w.get_imag_part()      # get imaginary part of wavefield
+    
+    
+    print("Shape of real part of wavefield: {}".format(np.shape(re)))
+    print("Shape of imaginary part of wavefield: {}".format(np.shape(im)))
+    
+    # print("real part:")
+    # print(re)
+    # print("imaginary part:")
+    # print(im)
+    
+    cwf = re + im*1j
+    
+    print("Shape of complex wavefield: {}".format(np.shape(cwf)))
+    # print("Complex Wavefield:")
+    # print(cwf)
+    
+    return cwf
 
 # %%
 def test():
@@ -627,7 +663,18 @@ def test_multi():
 #         10- Flux
 #         20- Electric Field (sum of fields from all macro-electrons, assuming CSR)
 #         40- Total Intensity, i.e. Flux per Unit Surface Area (s0), Mutual Intensity Cuts and Degree of Coherence vs X & Y;
-
+# %%
+def testComplex():
+    path = 'wavefield_1.pkl'
+    
+    import pickle
+    with open(path, 'rb') as wav:
+        w = pickle.load(wav)
+    
+        
+    wc = Wavefront(srwl_wavefront=w)
+    getComplex(wc)
+    print(" ")
 # %%
 if __name__ == '__main__':
     test()
