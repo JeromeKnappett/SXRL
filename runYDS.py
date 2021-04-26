@@ -264,7 +264,7 @@ varParam = srwl_bl.srwl_uti_ext_options([
     ['ws', '', '', 'calculate single-electron (/ fully coherent) wavefront propagation', 'store_true'],
     #Multi-Electron (partially-coherent) Wavefront Propagation 
     # - change to '1' for multi-electron
-    ['wm', '', '', 'calculate multi-electron (/ partially coherent) wavefront propagation', 'store_true'],
+    ['wm', '', '1', 'calculate multi-electron (/ partially coherent) wavefront propagation', 'store_true'],
     #90.44, 184.76
     ['w_e', 'f',90.44, 'photon energy [eV] for calculation of intensity distribution vs horizontal and vertical position'],
     ['w_ef', 'f', -1.0, 'final photon energy [eV] for calculation of intensity distribution vs horizontal and vertical position'],
@@ -281,7 +281,7 @@ varParam = srwl_bl.srwl_uti_ext_options([
     ['w_u', 'i', 1, 'electric field units: 0- arbitrary, 1- sqrt(Phot/s/0.1%bw/mm^2), 2- sqrt(J/eV/mm^2) or sqrt(W/mm^2), depending on representation (freq. or time)'],
     ['si_pol', 'i', 6, 'polarization component to extract after calculation of intensity distribution: 0- Linear Horizontal, 1- Linear Vertical, 2- Linear 45 degrees, 3- Linear 135 degrees, 4- Circular Right, 5- Circular Left, 6- Total'],
     # HERE - 0 for single electron, 1 for multi-electron
-    ['si_type', 'i', 0, 'type of a characteristic to be extracted after calculation of intensity distribution: 0- Single-Electron Intensity, 1- Multi-Electron Intensity, 2- Single-Electron Flux, 3- Multi-Electron Flux, 4- Single-Electron Radiation Phase, 5- Re(E): Real part of Single-Electron Electric Field, 6- Im(E): Imaginary part of Single-Electron Electric Field, 7- Single-Electron Intensity, integrated over Time or Photon Energy'],
+    ['si_type', 'i', 1, 'type of a characteristic to be extracted after calculation of intensity distribution: 0- Single-Electron Intensity, 1- Multi-Electron Intensity, 2- Single-Electron Flux, 3- Multi-Electron Flux, 4- Single-Electron Radiation Phase, 5- Re(E): Real part of Single-Electron Electric Field, 6- Im(E): Imaginary part of Single-Electron Electric Field, 7- Single-Electron Intensity, integrated over Time or Photon Energy'],
     ['w_mag', 'i', 1, 'magnetic field to be used for calculation of intensity distribution vs horizontal and vertical position: 1- approximate, 2- accurate'],
 
     ['si_fn', 's', 'res_int_se.dat', 'file name for saving calculated single-e intensity distribution (without wavefront propagation through a beamline) vs horizontal and vertical position'],
@@ -289,11 +289,11 @@ varParam = srwl_bl.srwl_uti_ext_options([
     ['ws_fni', 's', 'res_int_pr_se.dat', 'file name for saving propagated single-e intensity distribution vs horizontal and vertical position'],
     ['ws_pl', 's', '', 'plot the resulting intensity distributions in graph(s): ""- dont plot, "x"- vs horizontal position, "y"- vs vertical position, "xy"- vs horizontal and vertical position'],
 
-    ['wm_nm', 'i', 5000, 'number of macro-electrons (coherent wavefronts) for calculation of multi-electron wavefront propagation'],
+    ['wm_nm', 'i', 5, 'number of macro-electrons (coherent wavefronts) for calculation of multi-electron wavefront propagation'],
     ['wm_na', 'i', 5, 'number of macro-electrons (coherent wavefronts) to average on each node for parallel (MPI-based) calculation of multi-electron wavefront propagation'],
     ['wm_ns', 'i', 5, 'saving periodicity (in terms of macro-electrons / coherent wavefronts) for intermediate intensity at multi-electron wavefront propagation calculation'],
     # PUT "20" BELOW TO EXTRACT MULTI-ELECTRON ELECTRIC FIELD
-    ['wm_ch', 'i', 0, 'type of a characteristic to be extracted after calculation of multi-electron wavefront propagation: #0- intensity (s0); 1- four Stokes components; 2- mutual intensity cut vs x; 3- mutual intensity cut vs y; 40- intensity(s0), mutual intensity cuts and degree of coherence vs X & Y'],
+    ['wm_ch', 'i', 20, 'type of a characteristic to be extracted after calculation of multi-electron wavefront propagation: #0- intensity (s0); 1- four Stokes components; 2- mutual intensity cut vs x; 3- mutual intensity cut vs y; 40- intensity(s0), mutual intensity cuts and degree of coherence vs X & Y'],
     ['wm_ap', 'i', 0, 'switch specifying representation of the resulting Stokes parameters: coordinate (0) or angular (1)'],
     ['wm_x0', 'f', 0.0, 'horizontal center position for mutual intensity cut calculation'],
     ['wm_y0', 'f', 0.0, 'vertical center position for mutual intensity cut calculation'],
@@ -302,7 +302,8 @@ varParam = srwl_bl.srwl_uti_ext_options([
     ['wm_am', 'i', 0, 'multi-electron integration approximation method: 0- no approximation (use the standard 5D integration method), 1- integrate numerically only over e-beam energy spread and use convolution to treat transverse emittance'],
     ['wm_fni', 's', 'res_int_pr_me.dat', 'file name for saving propagated multi-e intensity distribution vs horizontal and vertical position'],
     ['wm_fbk', '', '', 'create backup file(s) with propagated multi-e intensity distribution vs horizontal and vertical position and other radiation characteristics', 'store_true'],
-
+    ['wm_fwf', '"wavefield.pkl"', 'file name for multi-electron wavefront']
+    
     #to add options
     ['op_r', 'f', 3.0, 'longitudinal position of the first optical element [m]'],
     # Former appParam:
@@ -428,13 +429,13 @@ def main():
     v.tr_pl = 'xz'
     
     """Multi-Electron propagation"""
-    # v.wm = True
-    # v.wm_pl = 'xy'
-    # v.wm_ns = v.sm_ns = 5
+    v.wm = True
+    v.wm_pl = 'xy'
+    v.wm_ns = v.sm_ns = 5
     
     """Single-Electron propagation"""
-    v.ws = True
-    v.ws_pl = 'xy'
+    # v.ws = True
+    # v.ws_pl = 'xy'
     
     mag = None
     if v.rs_type == 'm':
@@ -472,7 +473,7 @@ def main():
         print("""-----Writing Wavefield to pickle file----""")
                 
         
-        path = "/home/jerome/WPG/"#"/data/group/vanriessenlab/project/xrnl-srw-wpg-docker/data/maskTest/"
+        path = "/home/jerome/WPG/" #"/data/group/vanriessenlab/project/xrnl-srw-wpg-docker/data/maskTest/"
         waveName = path + "wavefield_TESTY.pkl"  # Save path for wavefield pickle
         pathS0 = path + "S0.png"               # Save path for Stokes parameter S0 plot
         pathS1 = path + "S1.png"               # Save path for Stokes parameter S1 plot
@@ -483,13 +484,13 @@ def main():
         pathIn = path + "In.png"               # Save path for Inclination (In) plot
         pathCS = path + "CS.png"               # Save path for Coherence plot from wfStokes()
         pathCSL = path + "CSL.png"             # Save path for Coherence profiles from wfStokes())
-        pathX = path + "X.png"                 # Save path for  plot
-        pathY = path + "Y.png"                 # Save path for Degree of Polarisation (D) plot
-        pathC = path + "C.png"                 # Save path for Degree of Polarisation (D) plot
-        pathCL = path + "CL.png"               # Save path for Degree of Polarisation (D) plot
-        pathI = path + "I.png"                 # Save path for Degree of Polarisation (D) plot
-        pathCm = path + "Cm.png"               # Save path for Degree of Polarisation (D) plot
-        pathCmL = path + "CmL.png"             # Save path for Degree of Polarisation (D) plot
+        pathX = path + "X.png"                 # Save path for horizontal cut coherence plot
+        pathY = path + "Y.png"                 # Save path for vertical cut coherence plot
+        pathC = path + "C.png"                 # Save path for Degree of coherence (U) plot
+        pathCL = path + "CL.png"               # Save path for Coherence line profiles plot
+        pathI = path + "I.png"                 # Save path for Intensity (I) plot
+        pathCm = path + "Cm.png"               # Save path for mean coherence plot
+        pathCmL = path + "CmL.png"             # Save path for mean coherence line profile plot
         
         with open(waveName, "wb") as g:
             pickle.dump(wf0, g)

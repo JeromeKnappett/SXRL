@@ -19,6 +19,7 @@ import cv2
 # plt.style.reload_library()
 # plt.style.use(['science','no-latex'])#,'ieee'])
 
+# %%
 def gratingEfficiencyDEL(m,beta,delta,d,k,b,theta = 0):
     """ DOES NOT WORK - NEED TO CHECK """
     
@@ -78,6 +79,7 @@ def gratingEfficiencyDEL(m,beta,delta,d,k,b,theta = 0):
     
     return n
 
+# %%
 def gratingEfficiencyHARV(m,b,d,G = 0):
     ''''
     Return the theoretical diffraction efficiency of X-rays incident on an arbitrary grating
@@ -100,7 +102,7 @@ def gratingEfficiencyHARV(m,b,d,G = 0):
     # print("absolute grating efficiency: {}".format(n))
     
     return n
-
+ # %%
 def plotEfficiency():
 
     ampEff=[]
@@ -271,7 +273,7 @@ def plotEfficiency():
     # # m = NA*p/lamda
     # # print("m: {}".format(m))
 
-
+# %%
 def getImageData(filename):
     im = cv2.imread(filename, cv2.IMREAD_ANYDEPTH )   # open any bit depth image (more readable than -1)
     # show each image (can comment out for speed)
@@ -283,7 +285,7 @@ def getImageData(filename):
 
     return im
 
-
+# %%
 def get_rect(x, y, width, height, angle):
     rect = np.array([(0, 0), (width, 0), (width, height), (0, height), (0, 0)])
     theta = (np.pi / 180.0) * angle
@@ -294,7 +296,429 @@ def get_rect(x, y, width, height, angle):
     
     return transformed_rect
 
+# %%
+def getOrders(I, m):
+    ## DOESNT WORK ##
+    """ 
+    I : Intensity array
+    m : maximum order to be analysed
+    """
+    
+    s = np.shape(I)
+    print("shape of intensity array: {}".format(s))
+    
+    N_ord = int((2*m)+1)
 
+    # import image_slicer
+    # image_slicer.slice(I, N_ord)
+    
+    # # M = np.reshape(I,(N_ord, 
+    # #                   (s[0])/N_ord,
+    # #                   (s[1])/N_ord ))
+    
+    if s[0]/N_ord != int:
+        
+        newshape = int(s[0]/N_ord)*N_ord
+        diff = s[0] - newshape
+        print("difference in shape: {}".format(diff))
+        Inew = I[0:s[1],int(diff/2):int(newshape+diff/2)]
+        
+        plt.imshow(Inew)
+        plt.title("Inew")
+        
+        print("New shape of I: {}".format(np.shape(Inew)))
+        print("New size of I: {}".format(np.size(Inew)))
+        
+        
+        M = np.reshape(Inew, (N_ord, int(s[1]), int((s[0]/N_ord))))
+    else:
+        M = np.reshape(I, (N_ord, int(s[1]), int((s[0]/N_ord))))
+    
+    print("New shape of intensity array: {}".format(np.shape(M)))
+    
+    plt.imshow(M[0])
+    plt.title("test")
+    plt.show()
+    
+    for i in range(N_ord):
+        
+        Mi = M[i,:,:]
+        
+        plt.imshow(Mi)
+        plt.title(i)
+        plt.show()
+
+    
+    # for i in 2*m + 1:
+        
+    #     m_i = np.reshape(M[i],((s2[0])/(2*m+1),(s2[1])/(2*m+1)))
+    #     print(m_i)
+    #     return m_i
+
+    # return i
+
+# %%    
+def getFarField(D,lam):
+    """  
+    """
+    r = (D**2)/(4*lam)
+    
+    print("Distance to Far-field [m]: {}".format(r))
+    
+    return r
+
+    
+# %%
+def getEfficiency(path1, path2, path3, m = 1, pickle = 1, pathm0 = None, pathm1 = None, pathm2 = None): #, intV = 300):    
+    """ Get the diffraction efficiency of a mask from intensity before mask, 
+    at exit plane & after propagation.
+    params:
+        path1: intensity/wavefield before mask
+        path2: intensity/wavefield at mask exit plane
+        path3: intensity/wavefield after propagation
+        m: maximum order to be analysed (accepts 0<m<5)
+        pickle: input to be analysed. 0 = intensity tif files, 1 = wavefield pickle files
+        pathm0: Save path for m=0 order intensity
+        pathm1: Save path for m=1 order intensity
+        pathm2: Save path for m=2 order intensity
+    returns:
+        efficiency of each order up to maximum """
+    
+    from wfAnalyseWave import pixelsize
+    
+    if pickle == 1:
+
+        import pickle
+        with open(path1, 'rb') as wav:
+            w1 = pickle.load(wav)
+        with open(path2, 'rb') as wav:
+            w2 = pickle.load(wav)
+        with open(path3, 'rb') as wav:
+            w3 = pickle.load(wav)
+            
+        wf1 = Wavefront(srwl_wavefront=w1)
+        wf2 = Wavefront(srwl_wavefront=w2)
+        wf3 = Wavefront(srwl_wavefront=w3)
+        
+        p1 = pixelsize(wf1)
+        p2 = pixelsize(wf2)
+        p3 = pixelsize(wf3)
+        
+        pR1 = p1[0]/p2[0]
+        pR2 = p1[0]/p3[0]
+        pR3 = p2[0]/p3[0]
+        
+        print("pixel size at mask [m]: {}".format(p1))
+        print("pixel size after mask [m]: {}".format(p2))
+        print("pixel size after propagation [m]: {}".format(p3))
+        print("ratio of pixel sizes (p1/p2): {}".format(pR1))
+        print("ratio of pixel sizes (p1/p3): {}".format(pR2))
+        print("ratio of pixel sizes (p2/p3): {}".format(pR3))
+        
+        """ Intensity from wavefield """
+        I0 = wf1.get_intensity()
+        I1 = wf2.get_intensity()
+        I2 = wf3.get_intensity()
+        
+        """ Total intensity at each plane """
+        I0_tot = np.sum(I0)/(p1[0]*p1[1])    #*p1[0]#6.25e-09*s0[0]*s0[1]
+        I1_tot = np.sum(I1)/(p2[0]*p2[1])     #*p2[0]#*s1[0]*s1[1]
+        I2_tot = np.sum(I2)/(p3[0]*p3[1])     #*p3[0]#*s2[0]*s1[1]
+        
+        
+    else:
+        """ Intensity from tif file """
+        I0 = path1 #getImageData("/home/jerome/Documents/MASTERS/data/wavefields/Efficiency/intensityIN.tif")
+        I1 = path2 #getImageData('/home/jerome/Documents/MASTERS/data/wavefields/Efficiency/intensityEX_1-2.tif')
+        I2 = path3 #getImageData('/home/jerome/Documents/MASTERS/data/wavefields/Efficiency/intensityPR_1-2.tif') #getImageData('/home/jerome/WPG/intensityTot_maskprop.tif')    
+        
+        """ Total intensity at each plane """
+        I0_tot = np.sum(I0)    #*p1[0]#6.25e-09*s0[0]*s0[1]
+        I1_tot = np.sum(I1)   #*p2[0]#*s1[0]*s1[1]
+        I2_tot = np.sum(I2)     #*p3[0]#*s2[0]*s1[1]
+    
+    s0 = np.shape(I0)
+    s1 = np.shape(I1)
+    s2 = np.shape(I2)
+    
+    print("Shape of I (at mask): {}".format(s0))
+    print("Shape of I (after mask): {}".format(s1))
+    print("Shape of I (after propagation): {}".format(s2))
+    
+    F0 = s0[0]/s1[0]
+    F1 = s0[0]/s2[0]
+    F2 = s1[0]/s2[0]
+    
+    print("pixel ratio (I0/I1): {}".format(F0))
+    print("pixel ratio (I0/I2): {}".format(F1))
+    print("pixel ratio (I1/I2): {}".format(F2))
+    
+    if F0 != 1.0:
+        print("WARNING! Number of pixels in intensity files does not match! Efficiency values may not be accurate!")
+        
+    if F1 != 1.0:
+        print("WARNING! Number of pixels in intensity files does not match! Efficiency values may not be accurate!")
+        
+    if F2 != 1.0:
+        print("WARNING! Number of pixels in intensity files does not match! Efficiency values may not be accurate!")
+    
+    Ir0 = (I1_tot/I0_tot)#(F0**2)*(I1_tot/I0_tot)    # ratio of intensity before & after mask
+    Ir1 = (I2_tot/I0_tot) #(F1**2)*(I2_tot/I0_tot)    # ratio of intensity before & after mask
+    Ir2 = (I2_tot/I1_tot) #(F2**2)*(I2_tot/I1_tot)    # ratio of intensity before & after mask
+    
+    print("Intensity Ratio I_ex/I_in: {}".format(Ir0))
+    print("Intensity Ratio I_prop/I_in: {}".format(Ir1))
+    print("Intensity Ratio I_prop/I_exit: {}".format(Ir2))
+    
+    
+    plt.imshow(I0)
+    plt.title("at mask")
+    plt.colorbar()
+    plt.show()
+    
+    plt.imshow(I1)
+    plt.title("After mask")
+    plt.colorbar()
+    plt.show()   
+    
+    plt.imshow(I2)
+    plt.title("after propagation")
+    plt.colorbar()
+    plt.show()
+    
+    
+    print(" ")
+    print("-----Total Intensity-----")
+    print("At mask: {}".format(I0_tot))
+    print("After mask: {}".format(I1_tot))
+    print("After propagation: {}".format(I2_tot))
+
+    """ Defining region of interest to inspect separate orders """  
+    Mi = int((s2[0]/2)-300) #initial position for order sampling
+    Mf = int((s2[0]/2)+300) #final position for order sampling
+    
+    print("coordinates for start and end of each order: {}".format((Mi,Mf)))
+    
+    """Finding each order"""
+    
+    intV = int(s2[0]/(2*m+1)) #500 # Number of pixels for segmentation interval 
+    
+    if m >= 1:
+        # region for m=0 
+        ROI_0 = ((int((s2[0]/2)-(intV/2)),Mi),((int((s2[0]/2)+(intV/2))),Mf))                    
+        # region for m=+1
+        ROI_1 = ((ROI_0[1][0], Mi),(ROI_0[1][0] + intV, Mf))
+        # region for m=-1
+        ROI_n1 =((ROI_0[0][0]-intV, Mi),(ROI_0[0][0], Mf))
+    if m >= 2:      
+        # region for m=+2
+        ROI_2 = ((ROI_1[1][0], Mi),(ROI_1[1][0] + intV, Mf))
+        # region for m=-2
+        ROI_n2 = ((ROI_n1[0][0]-intV, Mi),(ROI_n1[0][0], Mf))
+    if m >= 3:      
+        # region for m=+3  
+        ROI_3 = ((ROI_2[1][0], Mi),(ROI_2[1][0] + intV, Mf))
+        # region for m=-3
+        ROI_n3 = ((ROI_n2[0][0]-intV, Mi),(ROI_n2[0][0], Mf))
+    if m >= 4:  
+        # region for m=+4
+        ROI_4 = ((ROI_3[1][0], Mi),(ROI_3[1][0] + intV, Mf))
+        # region for m=-4
+        ROI_n4 = ((ROI_n3[0][0]-intV, Mi),(ROI_n3[0][0], Mf))
+    
+    
+    
+    x0_0,y0_0 = ROI_0[0][0], ROI_0[0][1]
+    x1_0,y1_0 = ROI_0[1][0], ROI_0[1][1]
+    
+    x0_1,y0_1 = ROI_1[0][0], ROI_1[0][1]
+    x1_1,y1_1 = ROI_1[1][0], ROI_1[1][1]
+    
+    x0_n1,y0_n1 = ROI_n1[0][0], ROI_n1[0][1]
+    x1_n1,y1_n1 = ROI_n1[1][0], ROI_n1[1][1]   
+    
+    try:
+        x0_2,y0_2 = ROI_2[0][0], ROI_2[0][1]
+        x1_2,y1_2 = ROI_2[1][0], ROI_2[1][1]
+        
+        x0_n2,y0_n2 = ROI_n2[0][0], ROI_n2[0][1]
+        x1_n2,y1_n2 = ROI_n2[1][0], ROI_n2[1][1]
+    
+        x0_3,y0_3 = ROI_3[0][0], ROI_3[0][1]
+        x1_3,y1_3 = ROI_3[1][0], ROI_3[1][1]
+        
+        x0_n3,y0_n3 = ROI_n3[0][0], ROI_n3[0][1]
+        x1_n3,y1_n3 = ROI_n3[1][0], ROI_n3[1][1]    
+        
+        x0_4,y0_4 = ROI_4[0][0], ROI_4[0][1]
+        x1_4,y1_4 = ROI_4[1][0], ROI_4[1][1]
+        
+        x0_n4,y0_n4 = ROI_n4[0][0], ROI_n4[0][1]
+        x1_n4,y1_n4 = ROI_n4[1][0], ROI_n4[1][1]
+    except NameError:
+        pass
+    
+    
+    A_0 = I2[y0_0:y1_0,x0_0:x1_0]
+    A_1 = I2[y0_1:y1_1,x0_1:x1_1]
+    A_n1 = I2[y0_n1:y1_n1,x0_n1:x1_n1]    
+    try:
+        A_2 = I2[y0_2:y1_2,x0_2:x1_2]
+        A_n2 = I2[y0_n2:y1_n2,x0_n2:x1_n2]
+        A_3 = I2[y0_3:y1_3,x0_3:x1_3]
+        A_n3 = I2[y0_n3:y1_n3,x0_n3:x1_n3]
+        A_4 = I2[y0_4:y1_4,x0_4:x1_4]
+        A_n4 = I2[y0_n4:y1_n4,x0_n4:x1_n4]
+    except NameError:
+        pass
+    
+    plt.imshow(A_0)
+    plt.title('m=0')
+    plt.colorbar()
+    if pathm0 != None:
+        print("Saving m=0 figure to path: {}".format(pathm0))
+        plt.savefig(pathm0)
+    plt.show()    
+    
+    plt.imshow(A_1)
+    plt.title('m=+1')
+    plt.colorbar()
+    if pathm1 != None:
+        print("Saving m=1 figure to path: {}".format(pathm1))
+        plt.savefig(pathm1)
+    plt.show()
+    
+    plt.imshow(A_n1)
+    plt.title('m=-1')
+    plt.colorbar()
+    plt.show()    
+    
+    try:
+        plt.imshow(A_2)
+        plt.title('m=+2')
+        plt.colorbar()
+        if pathm2 != None:
+            print("Saving m=2 figure to path: {}".format(pathm2))
+            plt.savefig(pathm2)
+        plt.show()
+        
+        plt.imshow(A_n2)
+        plt.title('m=-2')
+        plt.colorbar()
+        plt.show()    
+    
+        plt.imshow(A_3)
+        plt.title('m=+3')
+        plt.colorbar()
+        plt.show()
+        
+        plt.imshow(A_n3)
+        plt.title('m=-3')
+        plt.colorbar()
+        plt.show()
+            
+        plt.imshow(A_4)
+        plt.title('m=+4')
+        plt.colorbar()
+        plt.show()
+        
+        plt.imshow(A_n4)
+        plt.title('m=-4')
+        plt.colorbar()
+        plt.show()
+    except NameError:
+        pass
+    
+    Im_0 = np.sum(A_0)
+    Im_1 = np.sum(A_1)
+    Im_n1 = np.sum(A_n1)
+    try:
+        Im_2 = np.sum(A_2)/Ir2
+        Im_n2 = np.sum(A_n2)/Ir2
+        Im_3 = np.sum(A_3)/Ir2
+        Im_n3 = np.sum(A_n3)/Ir2
+        Im_4 = np.sum(A_4)/Ir2
+        Im_n4 = np.sum(A_n4)/Ir2
+    except NameError:
+        pass
+    
+    print(" ")
+    print("----- Intensity of m = 0-----")
+    print("Im_1: {}".format(Im_0))
+    print(" ")
+    print("----- Intensity of m = +1-----")
+    print("Im_1: {}".format(Im_1))
+    print(" ")
+    print("----- Intensity of m = -1-----")
+    print("Im_n1: {}".format(Im_n1))  
+    try:
+        print(" ")
+        print("----- Intensity of m = +2-----")
+        print("Im_2: {}".format(Im_2))
+        print(" ")
+        print("----- Intensity of m = -2-----")
+        print("Im_n2: {}".format(Im_n2))  
+        print(" ")
+        print("----- Intensity of m = +3-----")
+        print("Im_3: {}".format(Im_3))
+        print(" ")
+        print("----- Intensity of m = -3-----")
+        print("Im_n3: {}".format(Im_n3))  
+        print(" ")
+        print("----- Intensity of m = +4-----")
+        print("Im_4: {}".format(Im_4))
+        print(" ")
+        print("----- Intensity of m = -4-----")
+        print("Im_n4: {}".format(Im_n4))
+    except NameError:
+        pass
+    
+    if pickle == 1:
+        """ Get Efficiency of each order """   # Not sure if should be dividing by total intensity at mask or after mask
+        E0 = (Im_0/I0_tot)/p3[0] #p3[0]*(Im_0/I0_tot)
+        E1 = (Im_1/I0_tot)/p3[0] # p3[0]*(Im_1/I0_tot)/p3[0] #
+        En1 = (Im_n1/I0_tot)/p3[0] # p3[0]*(Im_n1/I0_tot)/p3[0] #
+        
+        try:
+            E2 = p3[0]*(Im_2/I0_tot)
+            En2 = p3[0]*(Im_n2/I0_tot)
+            E3 = p3[0]*(Im_3/I0_tot)
+            En3 = p3[0]*(Im_n3/I0_tot)
+            E4 = p3[0]*(Im_4/I0_tot)
+            En4 = p3[0]*(Im_n4/I0_tot)
+        except NameError:
+            pass
+    else:
+        """ Get Efficiency of each order """   # Not sure if should be dividing by total intensity at mask or after mask
+        E0 = (Im_0/I0_tot)
+        E1 = (Im_1/I0_tot)
+        En1 = (Im_n1/I0_tot)
+        
+        try:
+            E2 = (Im_2/I0_tot)
+            En2 = (Im_n2/I0_tot)
+            E3 = (Im_3/I0_tot)
+            En3 = (Im_n3/I0_tot)
+            E4 = (Im_4/I0_tot)
+            En4 = (Im_n4/I0_tot)
+        except NameError:
+            pass
+        
+    print(" ")
+    print("Efficiency of m=0 order: {}".format(E0))
+    print("Efficiency of m=+1 order: {}".format(E1))
+    print("Efficiency of m=-1 order: {}".format(En1))
+    try:
+        print("Efficiency of m=+2 order: {}".format(E2))
+        print("Efficiency of m=-2 order: {}".format(En2))
+        print("Efficiency of m=+3 order: {}".format(E3))
+        print("Efficiency of m=-3 order: {}".format(En3))
+        print("Efficiency of m=+4 order: {}".format(E4))
+        print("Efficiency of m=-4 order: {}".format(En4))
+    except NameError:
+        pass
+    
+# %%
 def test():
     
     """ Testing theoretical efficiency """
@@ -342,143 +766,36 @@ def test():
     """ Intensity from test Gaussian """
     # I = wf0.get_intensity()
     
+    directory = "/home/jerome/Documents/MASTERS/data/wavefields/Efficiency/"
+    
+    """ Load pickled Wavefronts """
+    path1 = directory + "incident.pkl"
+    path2 = directory + "exit_TH10.pkl"
+    path3 = directory + "prop_TH10.pkl" 
     
     """ Intensity from tif file """
-    I0 = getImageData('/home/jerome/WPG/intensity_atMask.tif')
-    I1 = getImageData('/home/jerome/WPG/intensity_exitMask.tif')
-    I2 = getImageData('/home/jerome/WPG/intensity_propMask.tif') #getImageData('/home/jerome/WPG/intensityTot_maskprop.tif')    
-    
-    I0_tot = np.sum(I0)
-    I1_tot = np.sum(I1)
-    I2_tot = np.sum(I2)
-    
-    s0 = np.shape(I0)
-    s1 = np.shape(I1)
-    s2 = np.shape(I2)
-    
-    # Is = np.shape(I2)
-    
-    print("Shape of I (at mask): {}".format(s0))
-    print("Shape of I (after mask): {}".format(s1))
-    print("Shape of I (after propagation): {}".format(s2))
-    
-    F0 = s0[0]/s1[0]
-    F1 = s0[0]/s2[0]
-    F2 = s1[0]/s2[0]
-    
-    print("pixel ratio (I0/I1): {}".format(F0))
-    print("pixel ratio (I0/I2): {}".format(F1))
-    print("pixel ratio (I1/I2): {}".format(F2))
-    
-    if F0 != 1.0:
-        print("WARNING! Number of pixels in intensity files does not match! Efficiency values may not be accurate!")
-        
-    if F1 != 1.0:
-        print("WARNING! Number of pixels in intensity files does not match! Efficiency values may not be accurate!")
-        
-    if F2 != 1.0:
-        print("WARNING! Number of pixels in intensity files does not match! Efficiency values may not be accurate!")
-    
-    Ir0 = (F0**2)*(I1_tot/I0_tot)    # ratio of intensity before & after mask
-    Ir1 = (F1**2)*(I2_tot/I0_tot)    # ratio of intensity before & after mask
-    Ir2 = (F2**2)*(I2_tot/I1_tot)    # ratio of intensity before & after mask
-    
-    print("Intensity Ratio I_ex/I_in: {}".format(Ir0))
-    print("Intensity Ratio I_prop/I_in: {}".format(Ir1))
-    print("Intensity Ratio I_prop/I_exit: {}".format(Ir2))
+    I0 = getImageData(directory + "intensityIN.tif")
+    I1 = getImageData(directory + "intensityEX_1-2.tif")
+    I2 = getImageData(directory + "intensityPR_1-2.tif") #getImageData('/hom
     
     
-    plt.imshow(I0)
-    plt.title("at mask")
-    plt.colorbar()
-    plt.show()
+    pathm0 = directory + "zeroOrder"
+    pathm1 = directory + "firstOrder"
+    pathm2 = directory + "secondOrder"
     
-    plt.imshow(I1)
-    plt.title("After mask")
-    plt.colorbar()
-    plt.show()   
+    # getEfficiency(I0,I1,I2,3,0)#,540)    
+    getEfficiency(path1,path2,path3,2,1, pathm0=pathm0)#,540)   
     
-    plt.imshow(I2)
-    plt.title("after propagation")
-    plt.colorbar()
-    plt.show()
+# %%
+def testReshape():
     
+    I = getImageData('/home/jerome/Documents/MASTERS/data/wavefields/Efficiency/intensityPR_1-4.tif') 
+    plt.imshow(I)
+    plt.title("Intensity")
     
-    print(" ")
-    print("-----Total Intensity-----")
-    print("At mask: {}".format(I0_tot))
-    print("After mask: {}".format(I1_tot))
-    print("After propagation: {}".format(I2_tot))
-
-    """ Define region of interest to inspect separate orders """  
-    # region for m=0 
-    ROI_0 = ((int((s2[0]/2)-300),
-              int(1300)),
-           (int((s2[0]/2)+300),
-            int(1900)))
-    # region for m=+1
-    ROI_1 = ((int((s2[0]/2)-300),
-              int(700)),
-           (int((s2[0]/2)+300),
-            int(1300)))
-    # region for m=-1
-    ROI_n1 = ((int((s2[0]/2)-300),
-              int(1900)),
-           (int((s2[0]/2)+300),
-            int(2500)))
+    getOrders(I,3)
     
-    x0_0,y0_0 = ROI_0[0][0], ROI_0[0][1]
-    x1_0,y1_0 = ROI_0[1][0], ROI_0[1][1]
-    
-    x0_1,y0_1 = ROI_1[0][0], ROI_1[0][1]
-    x1_1,y1_1 = ROI_1[1][0], ROI_1[1][1]
-    
-    x0_n1,y0_n1 = ROI_n1[0][0], ROI_n1[0][1]
-    x1_n1,y1_n1 = ROI_n1[1][0], ROI_n1[1][1]
-    
-    A_0 = I2[y0_0:y1_0,x0_0:x1_0]
-    A_1 = I2[y0_1:y1_1,x0_1:x1_1]
-    A_n1 = I2[y0_n1:y1_n1,x0_n1:x1_n1]
-    
-    plt.imshow(A_0)
-    plt.title('m=0')
-    plt.colorbar()
-    plt.show()    
-    
-    plt.imshow(A_1)
-    plt.title('m=+1')
-    plt.colorbar()
-    plt.show()
-    
-    plt.imshow(A_n1)
-    plt.title('m=-1')
-    plt.colorbar()
-    plt.show()
-    
-    Im_0 = np.sum(A_0)
-    Im_1 = np.sum(A_1)
-    Im_n1 = np.sum(A_n1)
-    
-    print(" ")
-    print("----- Intensity of m = 0-----")
-    print("Im_1: {}".format(Im_0))
-    print(" ")
-    print("----- Intensity of m = +1-----")
-    print("Im_1: {}".format(Im_1))
-    print(" ")
-    print("----- Intensity of m = -1-----")
-    print("Im_1: {}".format(Im_n1))
-    
-    """ Get Efficiency of each order """   # Not sure if should be dividing by total intensity at mask or after mask
-    E0 = (F0**2)*(Im_0/I0_tot)
-    E1 = (F1**2)*(Im_1/I0_tot)
-    En1 = (F1**2)*(Im_n1/I0_tot)
-    
-    print(" ")
-    print("Efficiency of m=0 order: {}".format(E0))
-    print("Efficiency of m=+1 order: {}".format(E1))
-    print("Efficiency of m=-1 order: {}".format(En1))
-    
-    
+# %%
 if __name__ == '__main__':
-   test()
+    test()
+   # testReshape()
